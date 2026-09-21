@@ -1,0 +1,80 @@
+package controller;
+
+/*
+ * Dit programma berekent de parkeerkosten in een parkeergarage. Na het invoeren van auto’s die geparkeerd hebben,
+ * bepaalt en toont de applicatie de parkeerkosten voor elke auto en het aantal verkochte dagkaarten.
+ *
+ * @author Bianca Blasweiler
+ * */
+
+import java.util.Scanner;
+
+public class ParkeergarageLauncher {
+    public static double DAGKAART = 25.0;
+    public static double LAAG_TARIEF = 2.75;
+    public static double HOOG_TARIEF = 3.75;
+    public static int TARIEFWISSEL_UUR = 3;
+    public static int MAX_UREN = 24;
+    public static Scanner scanner = new Scanner(System.in);
+
+    static void main() {
+        // vraag de gebruiker om het aantal geparkeerde auto's
+        System.out.print("Hoeveel auto's hebben geparkeerd? ");
+        int aantalAutos = scanner.nextInt();
+        String[] kentekens = new String[aantalAutos];
+        int[] geparkeerdeUren = new int[aantalAutos];
+
+        // vraag het kenteken en het aantal geparkeerde uren voor het ingevoerde aantal auto's
+        for (int teller = 0; teller < aantalAutos; teller++) {
+            // print het autonummer + 1, anders begin je bij auto 0
+            System.out.println("Auto " + (teller + 1));
+            System.out.print("Kenteken: ");
+            kentekens[teller] = scanner.next();
+
+            // vraag het aantal geparkeerde uren en controleer of dat er minder zijn dan het maximale aantal
+            do {
+                System.out.print("Geparkeerde uren (max. 24): ");
+                geparkeerdeUren[teller] = scanner.nextInt();
+                if(geparkeerdeUren[teller] > MAX_UREN){
+                    System.out.println("De parkeerduur kan maximaal 24 uur zijn. ");
+                }
+            } while (geparkeerdeUren[teller] > 24);
+        }
+
+        // print de kopjes van de tabel
+        System.out.println("Parkeeroverzicht");
+        System.out.printf("%-10s %8s %8s", "kenteken", "uren" , "bedrag\n" );
+        // print per auto het aantal geparkeerde uren en de parkeerkosten uit
+        int aantalDagkaarten = 0;
+        for (int teller = 0; teller<aantalAutos; teller++){
+            double bedrag = berekenParkeergeld(geparkeerdeUren[teller]);
+            if (bedrag == 25){
+                aantalDagkaarten++;
+            }
+            System.out.printf("%-10s %8d %8.2f\n", kentekens[teller], geparkeerdeUren[teller] , bedrag );
+        }
+        System.out.println("Aantal auto’s met dagkaart van 25 euro: " + aantalDagkaarten);
+
+
+    }
+
+    // bereken de parkeerkosten voor 1 auto
+    // ik zou als parkeerduur 2 willen testen voor het hoge tarief, 4 uur om te kijken of hij wisselt naar laag tarief
+    // en 24 uur om te kijken of daar inderdaad netjes een dagkaart uit komt
+    public static double berekenParkeergeld(int parkeerduur){
+        double parkeerkosten = 0;
+        //als er langer wordt geparkeerd dan 3 uur, reken dan de eerste 3 uur hoog tarief en daarna laag tarief
+        if (parkeerduur > TARIEFWISSEL_UUR){
+            parkeerkosten = TARIEFWISSEL_UUR*HOOG_TARIEF + (parkeerduur-TARIEFWISSEL_UUR)*LAAG_TARIEF;
+            // als de parkeerkosten hoger zijn dan de kosten van een dagkaart, reken dan een dagkaart
+            if (parkeerkosten > DAGKAART){
+                parkeerkosten = DAGKAART;
+            }
+            //als er minder dan 3 uur wordt geparkeerd, reken dan hoog tarief voor de hele geparkeerde tijd
+        } else{
+            parkeerkosten = parkeerduur * HOOG_TARIEF;
+        }
+        return parkeerkosten;
+    }
+
+}
